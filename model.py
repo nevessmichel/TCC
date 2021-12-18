@@ -1,9 +1,9 @@
 import math
+import time
 
 class PMA:
-    def __init__(self, alertCallback, size=0, confidence = 0.1):
-        #alpha for prediction confidence
-        self.__confidence_alpha = 1 - confidence
+    def __init__(self, alertCallback, size=0):
+        
         # alert callback function
         self.__alertCallback = alertCallback
         # factorial vector
@@ -48,7 +48,7 @@ class PMA:
 
     # function to set factorial vector values
     def __adjustFactorial(self):
-        print("window_size", self.__window_size)
+        #print("window_size", self.__window_size)
         # block to decrease factorial vector
         if(self.__factorial_size > self.__window_size):
             # decrese factorial size
@@ -179,24 +179,10 @@ class PMA:
         self.__predict()
         
 
-    # function to check anomaly
-    def __anomaly(self):
-        # verify if it's above threshold
-        if(self.__frames_count >= self.__window_size and self.__frame > self.__predicted * (1 + self.__confidence_alpha)):
-            # alert as higher frame, sending frame and predicted
-            self.__alertCallback("higher", self.__frame, self.__predicted,self.__time,self.__interval)
-        # verify if it's below threshold
-        elif (self.__frames_count >= self.__window_size and self.__frame < self.__predicted * (1 - self.__confidence_alpha)):
-            # alert as lower frame, sending frame and predicted
-            self.__alertCallback("lower", self.__frame, self.__predicted,self.__time,self.__interval)
-        # verify if it's in training
-        elif (self.__frames_count < self.__window_size):
-            # alert as training frame, sending frame and predicted
-            self.__alertCallback("training", self.__frame, self.__predicted,self.__time,self.__interval)
-        # frame within prediction
-        else:
-            # alert as normal frame, sending frame and predicted
-            self.__alertCallback("normal", self.__frame, self.__predicted,self.__time,self.__interval)
+    # function to return prediction
+    def __callback(self):
+        self.__alertCallback(self.__frame, self.__predicted)
+
 
     #__________public functions_____________
 
@@ -205,25 +191,31 @@ class PMA:
         # sum 1 to frames count
         self.__frames_count += 1
         # call anomaly test
-        self.__anomaly()
+        self.__callback()
         # recalculate window and slide window
         self.__slideWindow()
         # start new frame count
         self.__frame = 1
 
     # set initial value for time and interval
-    def setStart(self, start_time, interval):
+    def setStart(self, interval, start_time = time.time()):
         # set variable time
         self.__time = start_time
         # set time interval
         self.__interval = interval
 
+    #change package interval on run
+    def setInterval(self, interval):
+        # set new time interval
+        self.__interval = interval
+
     # function to processo package in
-    def packageIn(self, time):
+    def packageIn(self, packages, time_sec = time.time()):
+        print(packages, time_sec)
         # verify if package time is out of frame time
-        if(time > self.__time + self.__interval):
+        if(time_sec > self.__time + self.__interval):
             # check frame anomaly
-            self.__anomaly()
+            self.__callback()
             # recalculate window and slide window
             self.__slideWindow()
             # set next frame base time
@@ -231,8 +223,8 @@ class PMA:
             # frames count increment
             self.__frames_count += 1
             # start new frame count
-            self.__frame = 1
+            self.__frame = packages
         # increment package in frame
-        self.__frame += 1
+        self.__frame += packages
 
         
