@@ -1,23 +1,18 @@
 import math
 import time
 
-class PMA:
-    def __init__(self, alertCallback, size=0):
+from Models.Base import Base
+
+class Predictor:
+    def __init__(self, alertCallback, model, size=0):
         
         # alert callback function
         self.__alertCallback = alertCallback
-        # factorial vector
-        self.__factorial = [1]
-        # factorial vector size
-        self.__factorial_size = 1
+        self.setModel(model)
         # window vector size
         self.__window_size = size
         # package counter in interval
         self.__frame = 0
-        # frame prediction
-        self.__predicted = 0
-        # poisson vector
-        self.__poisson = []
         # time of last interval end
         self.__time = None
         # interval of frame
@@ -41,69 +36,14 @@ class PMA:
         self.__variance = 0
         # ------
 
-        # set factorial vector
-        self.__adjustFactorial()
-        # set poisson vector
-        self.__adjustPoisson()
-
-    # function to set factorial vector values
-    def __adjustFactorial(self):
-        #print("window_size", self.__window_size)
-        # block to decrease factorial vector
-        if(self.__factorial_size > self.__window_size):
-            # decrese factorial size
-            while (self.__factorial_size > self.__window_size):
-                # remove last item from factorial vector
-                self.__factorial.pop()
-                # decrement variable that contains factorial size
-                self.__factorial_size -= 1
-        # block to increase factorial vector
-        if(self.__factorial_size < self.__window_size):
-            # increse factorial size
-            while (self.__factorial_size < self.__window_size):
-                # increment factorial vector with size * last item
-                self.__factorial.append(
-                    self.__factorial[-1] * (self.__factorial_size))
-                # increment variable that contains factorial size
-                self.__factorial_size += 1
-        # print("factorial", self.__factorial)
-
-    # function to calculate poisson truncate distribution
-    def __adjustPoisson(self):
-        # reset poissson vector
-        self.__poisson = []
-        # pre-calculate e^-lambda
-        e_m_lambda = math.exp(-self.__window_size)
-        # iterate from 0 to window_size -1, ex: 0,2,3,4,5
-        for k in range(self.__window_size):
-            # append the result of iteration k to vector
-            self.__poisson.append(math.pow(self.__window_size, k) * e_m_lambda / self.__factorial[k])
-        
-        #multiplier to normalize vector sum to 1
-        normalize = 1 / sum(self.__poisson)
-        #iterate poisson vector
-        for i in range(self.__window_size):
-            #nomalize values
-            self.__poisson[i] = self.__poisson[i] * normalize
-        
-    #function to resize window
-    def __adjustWindow(self, size):
-        #set new window size
-        self.__window_size = size
-        #recalculate factorial
-        self.__adjustFactorial()
-        #recalculate poisson truncate distribution
-        self.__adjustPoisson()
+    def setModel(self, model):
+        if(not issubclass(model, Base)):
+            raise Exception("model is not a subclass of Base abstract class")
+        self.__model = model()
 
     # generate prediction
     def __predict(self):
-        # reset predicted
-        self.__predicted = 0
-        # iterate from 0 to window_size - 1
-        for i in range(self.__window_size):
-            # accumulate frame relevance * frame
-            self.__predicted += (
-                self.__poisson[i] * self.__history[self.__history_size - self.__window_size + i])
+        self.__model.predict()
 
     # function to calculate variance
     def __calcVariance(self):
@@ -173,15 +113,12 @@ class PMA:
                     ((self.__avg > self.__avg_old) * volume or -volume)
 
                 # call adjust window function passing ceil of new size
-                self.__adjustWindow(math.ceil(new_size))
-
-        # generate prediction
-        self.__predict()
+                self.__window_size = math.ceil(new_size)
         
 
     # function to return prediction
     def __callback(self):
-        self.__alertCallback(self.__frame, self.__predicted)
+        self.__alertCallback(self.__frame, self.__predict())
 
 
     #__________public functions_____________
