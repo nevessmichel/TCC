@@ -8,6 +8,11 @@ from ryu.lib import hub
 
 from predictor import Predictor
 
+from Models.sma import SMA
+from Models.wma import WMA
+from Models.ema import EMA
+from Models.pma import PMA
+
 import time
 
 class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
@@ -20,8 +25,11 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         #module variables
         self.switchesCount = {}
         self.switchesCount_old = {}
-        self.modelPMA = PMA(self.callbackFunction,10)
-        self.modelPMA.setStart(10)
+        
+        self.model = "SMA"
+        self.models = {"SMA": SMA, "WMA": WMA, "EMA": EMA,"PMA":PMA}
+        self.predictor = Predictor(self.callbackFunction, self.models[self.model], 10)
+        self.predictor.setStart(10)
         
 
     @set_ev_cls(ofp_event.EventOFPStateChange,
@@ -101,7 +109,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
             else:
                 delta = self.switchesCount[switch]
             print("________________________")
-            self.modelPMA.packageIn(delta, time.time())
+            self.predictor.packageIn(delta, time.time())
 
     @set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)
     def _port_stats_reply_handler(self, ev):
