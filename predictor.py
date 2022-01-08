@@ -43,7 +43,7 @@ class Predictor:
 
     # generate prediction
     def __predict(self):
-        self.__model.predict()
+        return self.__model.predict(self.__history[self.__history_size-self.__window_size:], self.__window_size)
 
     # function to calculate variance
     def __calcVariance(self):
@@ -148,7 +148,7 @@ class Predictor:
 
     # function to processo package in
     def packageIn(self, packages, time_sec = time.time()):
-        print(packages, time_sec)
+        print("window_size:", self.__window_size)
         # verify if package time is out of frame time
         if(time_sec > self.__time + self.__interval):
             # check frame anomaly
