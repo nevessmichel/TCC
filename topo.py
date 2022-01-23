@@ -101,8 +101,8 @@ if __name__ == '__main__':
                       ip=REMOTE_CONTROLLER_IP,
                       port=6633)
     net.start()
-    print("Dumping host connections")
-    dumpNodeConnections(net.hosts)
+    #print("Dumping host connections")
+    #dumpNodeConnections(net.hosts)
     CLI(net)
     net.stop()
 
