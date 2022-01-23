@@ -44,6 +44,7 @@ def doFlow():
         while(entries != 0):
             sendMessage(destination,"message")
             entries -= 1
+        sleep(5)
 
 def main():
     if len(sys.argv)<3:

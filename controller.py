@@ -49,8 +49,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 del self.datapaths[datapath.id]
     
     def callbackFunction(self, packages, predicted):
-        print("Packages:", packages)
-        print("Predicted:", predicted)
+        self.logger.info("Packages:", packages)
+        self.logger.info("Predicted:", predicted)
         self.log.append("{},{},{}\n".format(time.time(),packages, predicted))
 
     def _monitor(self):
@@ -95,19 +95,3 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                 delta = self.switchesCount[switch]
             #print("________________________")
             self.predictor.packageIn(delta, time.time())
-
-    @set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)
-    def _port_stats_reply_handler(self, ev):
-        body = ev.msg.body
-
-        self.logger.info('datapath         port     '
-                         'rx-pkts  rx-bytes rx-error '
-                         'tx-pkts  tx-bytes tx-error')
-        self.logger.info('---------------- -------- '
-                         '-------- -------- -------- '
-                         '-------- -------- --------')
-        for stat in sorted(body, key=attrgetter('port_no')):
-            self.logger.info('%016x %8x %8d %8d %8d %8d %8d %8d',
-                             ev.msg.datapath.id, stat.port_no,
-                             stat.rx_packets, stat.rx_bytes, stat.rx_errors,
-                             stat.tx_packets, stat.tx_bytes, stat.tx_errors)
