@@ -13,6 +13,8 @@ from Models.wma import WMA
 from Models.ema import EMA
 from Models.pma import PMA
 
+from arquive import Arquive
+
 import time
 
 class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
@@ -28,6 +30,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         
         self.model = "SMA"
         self.models = {"SMA": SMA, "WMA": WMA, "EMA": EMA,"PMA":PMA}
+        self.log = Arquive("Log/{}/{}_{}.csv".format(self.model,time.time(),self.model))
         self.predictor = Predictor(self.callbackFunction, self.models[self.model], 10)
         self.predictor.setStart(10)
         
@@ -48,6 +51,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
     def callbackFunction(self, packages, predicted):
         print("Packages:", packages)
         print("Predicted:", predicted)
+        self.log.append("{},{},{}\n".format(time.time(),packages, predicted))
 
     def _monitor(self):
         while True:
@@ -102,13 +106,14 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
                              stat.instructions[0].actions[0].port,
                              stat.packet_count, stat.byte_count)
             """
-        print(switch)
+        #print(switch)
+        print(self.switchesCount_old)
         if(switch):
             if(switch in self.switchesCount_old):
                 delta = self.switchesCount[switch] - self.switchesCount_old[switch]
             else:
                 delta = self.switchesCount[switch]
-            print("________________________")
+            #print("________________________")
             self.predictor.packageIn(delta, time.time())
 
     @set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)

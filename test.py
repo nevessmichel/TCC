@@ -1,10 +1,7 @@
-from Models.Base import Base
-from Models.sma import SMA
+from Flows.genFlow import genFlow
 
 def test():
-    sma = SMA
-    print(issubclass(sma, Base))
-    print(isinstance(sma(), Base))
+    genFlow(["10.0.0.1","10.0.0.2","10.0.0.3"],40)
 
 
 if(__name__ == "__main__"):

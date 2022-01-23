@@ -148,7 +148,7 @@ class Predictor:
 
     # function to processo package in
     def packageIn(self, packages, time_sec = time.time()):
-        print("window_size:", self.__window_size)
+        #print("window_size:", self.__window_size)
         # verify if package time is out of frame time
         if(time_sec > self.__time + self.__interval):
             # check frame anomaly
