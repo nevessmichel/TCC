@@ -1,14 +1,17 @@
-import math
-import time
+from math import ceil as CEIL, pow as POW
+from time import time as TIME, sleep as SLEEP
+from threading import Thread
 
 from Models.Base import Base
+from arquive import Arquive
 
-class Predictor:
-    def __init__(self, alertCallback, model, size=0):
-        
+class Predictor(Thread):
+    def __init__(self, alertCallback, model, size=0, interval = 10):
+        Thread.__init__(self)
         # alert callback function
         self.__alertCallback = alertCallback
         self.setModel(model)
+        self.__log = Arquive("Log/{}/{}_{}.csv".format(self.__model.getName(),TIME(),self.__model.getName()))
         # window vector size
         self.__window_size = size
         # package counter in interval
@@ -16,7 +19,7 @@ class Predictor:
         # time of last interval end
         self.__time = None
         # interval of frame
-        self.__interval = None
+        self.__interval = interval
         # frames counter
         self.__frames_count = 0
         # vector to save history of last frames
@@ -35,6 +38,7 @@ class Predictor:
         #current window variance
         self.__variance = 0
         # ------
+        self.start()
 
     def setModel(self, model):
         if(not issubclass(model, Base)):
@@ -53,7 +57,7 @@ class Predictor:
         # iterate window frames
         for frame in self.__history[self.__history_size - self.__window_size:]:
             # sommation
-            self.__variance += math.pow(frame - self.__avg, 2)
+            self.__variance += POW(frame - self.__avg, 2)
             #print(self.__variance)
         # divide summation by vector size
         self.__variance = self.__variance / self.__window_size
@@ -113,12 +117,12 @@ class Predictor:
                     ((self.__avg > self.__avg_old) * volume or -volume)
 
                 # call adjust window function passing ceil of new size
-                self.__window_size = math.ceil(new_size)
+                self.__window_size = CEIL(new_size)
         
 
     # function to return prediction
     def __callback(self):
-        self.__alertCallback(self.__frame, self.__predict())
+        self.__alertCallback(self.__log, str(self.__history[self.__history_size - self.__window_size:]),self.__frame, self.__predict())
 
 
     #__________public functions_____________
@@ -135,7 +139,7 @@ class Predictor:
         self.__frame = 1
 
     # set initial value for time and interval
-    def setStart(self, interval, start_time = time.time()):
+    def setStart(self, interval, start_time = TIME()):
         # set variable time
         self.__time = start_time
         # set time interval
@@ -147,21 +151,17 @@ class Predictor:
         self.__interval = interval
 
     # function to processo package in
-    def packageIn(self, packages, time_sec = time.time()):
-        #print("window_size:", self.__window_size)
-        # verify if package time is out of frame time
-        if(time_sec > self.__time + self.__interval):
-            # check frame anomaly
+    def packetIn(self, packages = 1):
+        self.__frame += packages
+
+    def run(self):
+
+        while(True):
+            SLEEP(self.__interval)
             self.__callback()
             # recalculate window and slide window
             self.__slideWindow()
-            # set next frame base time
-            self.__time += self.__interval
             # frames count increment
             self.__frames_count += 1
             # start new frame count
-            self.__frame = packages
-        # increment package in frame
-        self.__frame += packages
-
-        
+            self.__frame = 0

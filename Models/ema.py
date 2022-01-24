@@ -10,6 +10,9 @@ class EMA(Base):
     def setSmoothing(self,smoothing):
         self.__smoothing = smoothing
 
+    def getName(self):
+        return "EMA"
+
     def predict(self, vector, size):
         
         multiplier = self.__smoothing/(1+size)

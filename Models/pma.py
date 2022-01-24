@@ -7,6 +7,9 @@ class PMA(Base):
         self.__factorial_size = 1
         self.__poisson = []
 
+    def getName(self):
+        return "PMA"
+        
     # function to set factorial vector values
     def __adjustFactorial(self, size):
         # block to decrease factorial vector
