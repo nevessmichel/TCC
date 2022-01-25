@@ -7,9 +7,10 @@ class PMA(Base):
         self.__factorial_size = 1
         self.__poisson = []
 
-    def getName(self):
+    @staticmethod
+    def getName():
         return "PMA"
-        
+
     # function to set factorial vector values
     def __adjustFactorial(self, size):
         # block to decrease factorial vector
@@ -51,6 +52,6 @@ class PMA(Base):
         if(self.__factorial_size != size):
             self.__adjustFactorial(size)
             self.__adjustPoisson(size)
-        print("Factorial:",self.__factorial)
-        print("Poisson:",self.__poisson)
+        #print("Factorial:",self.__factorial)
+        #print("Poisson:",self.__poisson)
         return sum([vector[i] * self.__poisson[i] for i in range(size)])

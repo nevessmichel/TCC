@@ -7,11 +7,12 @@ class EMA(Base):
         self.__yesterday = 0
         self.__oldSize = 0
 
+    @staticmethod
+    def getName():
+        return "EMA"
+
     def setSmoothing(self,smoothing):
         self.__smoothing = smoothing
-
-    def getName(self):
-        return "EMA"
 
     def predict(self, vector, size):
         

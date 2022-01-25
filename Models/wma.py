@@ -1,10 +1,11 @@
 from Models.Base import Base
 
 class WMA(Base):
-    
-    def getName(self):
+
+    @staticmethod
+    def getName():
         return "WMA"
-        
+
     def predict(self, vector, size):
         multipliers = 0
         partial = 0

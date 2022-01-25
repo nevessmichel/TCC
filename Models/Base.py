@@ -6,6 +6,6 @@ class Base(ABC):
     def predict(self, vector, size):
         pass
 
-    @abstractmethod
-    def getName(self):
-        pass
+    @staticmethod
+    def getName():
+        return "Base"
