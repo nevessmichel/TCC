@@ -30,9 +30,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
         
         self.model = "SMA"
         self.models = {"SMA": SMA, "WMA": WMA, "EMA": EMA,"PMA":PMA}
-        self.log = Arquive("Log/{}/{}_{}.csv".format(self.model,time.time(),self.model))
-        self.predictor = Predictor(self.callbackFunction, self.models[self.model], 10)
-        self.predictor.setStart()
+        self.__log = None
+
         
 
     @set_ev_cls(ofp_event.EventOFPStateChange,
@@ -51,14 +50,14 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
     def callbackFunction(self,log, window, packages, predicted):
         self.logger.info("Packages:", packages)
         self.logger.info("Predicted:", predicted)
-        log.append("{},{},{},{}\n".format(time.time(), window,packages, predicted))
+        self.__log.append("{},{},{},{}\n".format(time.time(), window,packages, predicted))
 
     def _monitor(self):
         fileName = "Log/{}/{}_{}.csv".format(self.models[self.model]().getName(),time.time(), self.models[self.model]().getName())
-        log = Arquive(fileName)
+        self.__log = Arquive(fileName)
         #write log header
-        log.append("timestamp,window,packages,predicted\n")
-        self.predictor = Predictor(log, self.callbackFunction, self.models[self.model], 10)
+        self.__log.append("timestamp,window,packages,predicted\n")
+        self.predictor = Predictor(self.callbackFunction, self.models[self.model], 10)
         self.predictor.setStart()
         while True:
             for dp in self.datapaths.values():

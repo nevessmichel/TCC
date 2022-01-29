@@ -4,12 +4,11 @@ from threading import Thread
 from Models.Base import Base
 
 class Predictor(Thread):
-    def __init__(self, log, alertCallback, model, size=10, interval = 10):
+    def __init__(self, alertCallback, model, size=10, interval = 10):
         self.super = Thread.__init__(self)
         # alert callback function
         self.__alertCallback = alertCallback
         self.setModel(model)
-        self.__log = log
         # window vector size
         self.__window_size = size
         # package counter in interval
@@ -39,7 +38,7 @@ class Predictor(Thread):
         self.__running = True
         self.__online = True
         self.__offline_fifo = []
-        
+
 
     def setModel(self, model):
         if(not issubclass(model, Base)):
@@ -123,22 +122,38 @@ class Predictor(Thread):
 
     # function to return prediction
     def __callback(self):
-        self.__alertCallback(self.__log, str(self.__history[self.__history_size - self.__window_size:]),self.__frame, self.__predict())
+        #self.__alertCallback("[{}]".format(";".join(map(str, self.__history[self.__history_size - self.__window_size:]))),self.__frame, self.__predict())
+        self.__alertCallback("None",self.__frame, self.__predict())
 
 
     #__________public functions_____________
 
     # function to end model analysis
     def stop(self):
+        self.__running = False
         # sum 1 to frames count
         self.__frames_count += 1
         # call anomaly test
-        self.__callback()
-        # recalculate window and slide window
-        self.__slideWindow()
-        # start new frame count
-        self.__frame = 1
-        self.__running = False
+        
+        if(not self.__online):
+            while(len(self.__offline_fifo) > 0):
+                [time, packets] = self.__offline_fifo.pop(0)
+                if(self.__time + self.__interval < time):
+                    self.__callback()
+                    # recalculate window and slide window
+                    self.__slideWindow()
+                    # frames count increment
+                    self.__frames_count += 1
+                    self.__time += self.__interval
+                    self.__frame = 0
+                # start new frame count
+                self.__frame += packets
+        if(self.__frame != 0):
+            self.__callback()
+            # recalculate window and slide window
+            self.__slideWindow()
+            self.__frame = 0
+        
 
 
     # set initial value for time and interval
@@ -167,7 +182,7 @@ class Predictor(Thread):
         self.__online = False
 
     def __runOnline(self):
-        if(not self.__online):
+        while(self.__running):
             time.sleep(self.__interval)
             self.__callback()
             # recalculate window and slide window
