@@ -30,7 +30,7 @@
 
 ### Test Dataset
 
-https://archive.ll.mit.edu/ideval/data/1999/training/week3/monday/outside.tcpdump.gz
+https://www.kaggle.com/jsrojas/ip-network-traffic-flows-labeled-with-87-apps
 
 ---
 

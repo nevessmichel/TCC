@@ -122,8 +122,8 @@ class Predictor(Thread):
 
     # function to return prediction
     def __callback(self):
-        #self.__alertCallback("[{}]".format(";".join(map(str, self.__history[self.__history_size - self.__window_size:]))),self.__frame, self.__predict())
-        self.__alertCallback("None",self.__frame, self.__predict())
+        self.__alertCallback("[{}]".format(";".join(map(str, self.__history[self.__history_size - self.__window_size:]))),self.__frame, self.__predict())
+        #self.__alertCallback("None",self.__frame, self.__predict())
 
 
     #__________public functions_____________
@@ -172,8 +172,20 @@ class Predictor(Thread):
     def packetIn(self, packets = 1):
         self.__frame += packets
 
-    def packetInOffline(self, time, packets = 1):
+    def _packetInOffline(self, time, packets = 1):
         self.__offline_fifo.append([time,packets])
+
+    def packetInOffline(self,time):
+        if(self.__time + self.__interval < time):
+            self.__callback()
+            # recalculate window and slide window
+            self.__slideWindow()
+            # frames count increment
+            self.__frames_count += 1
+            self.__time += self.__interval
+            self.__frame = 0
+        # start new frame count
+        self.__frame += 1
 
     def setOnline(self):
         self.__online = True
@@ -214,4 +226,5 @@ class Predictor(Thread):
         if(self.__online):
             self.__runOnline()
         else:
-            self.__runOffline()
+            #self.__runOffline()
+            pass

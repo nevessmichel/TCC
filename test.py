@@ -103,17 +103,17 @@ class Test:
 
         print('Opening {}...'.format(file_name))
         #models = {"SMA": SMA, "WMA": WMA, "EMA": EMA,"PMA":PMA}
-        models = [SMA]
+        models = [SMA, EMA, WMA, PMA]
         # size of window
         size = 10
         #interval in secs
-        interval = 60
+        interval = 15
 
         lines = Arquive(file_name).readAllLines()
         lines.pop(0)
         lines.pop(len(lines)-1)
         lines.pop(len(lines)-1)
-
+        lines_size = len(lines)
         for model in models:
             fileName = "Log/{}/{}_{}.csv".format(model.getName(),time.time(), model.getName())
             self.log = Arquive(fileName)
@@ -124,6 +124,7 @@ class Test:
             predictor.setOffline()
             # package counter
             count = 0
+
             for timestamp in lines:
                 count += 1
                 # verify if is first iteration
@@ -132,17 +133,23 @@ class Test:
                     predictor.setStart(int(timestamp))
                 # send package time to model
                 predictor.packetInOffline(int(timestamp))
-                time.sleep(0.05)
+                #print(count,'/',lines_size)
+                #time.sleep(0.00001)
             print(model.getName(),"number of packets:",count)
 
             # end model
             predictor.stop()
-            time.sleep(5)
             print("frames:",self.frames)
+            self.frames = 0
 
-            # end prediction
-            predictor.stop()
-            print("frames:",self.frames)
+    def seeData(self,file_name):
+        lines = Arquive(file_name).readAllLines()
+        lines.pop(0)
+        lines.pop(len(lines)-1)
+        lines.pop(len(lines)-1)
+        lines_size = len(lines)
+        for timestamp in lines:
+            print(timestamp)
 
 if(__name__ == "__main__"):
     Test().csvFile("Data/data.csv")
