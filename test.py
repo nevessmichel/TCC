@@ -1,6 +1,7 @@
 
 #system functions
 import os, sys, time
+from datetime import datetime
 from statistics import mode
 #seconds to datetime lib
 from datetime import datetime
@@ -69,16 +70,6 @@ class Test:
                 if 'type' not in ether_pkt.fields:
                     #skip package
                     continue
-                # ignore non-IPv4 packets
-                if ether_pkt.type != 0x0800:
-                    #skip package
-                    continue
-                #parse IPV4 package
-                ip_pkt = ether_pkt[IP]
-                # Ignore non-UDP packet
-                if ip_pkt.proto != 17:
-                    # skip package
-                    continue
                 # increment counter
                 count += 1
                 # verify if is first iteration
@@ -100,5 +91,58 @@ class Test:
         self.frames+=1
         self.log.append("{},{},{},{}\n".format(time.time(),window,packages, predicted))
 
+    def stringToSeconds(self,string, pattern = "%d/%m/%Y %H:%M:%S"):
+        element = datetime.strptime(string,pattern)
+  
+        tuple = element.timetuple()
+        timestamp = time.mktime(tuple)
+        
+        return timestamp
+
+    def csvFile(self, file_name):
+
+        print('Opening {}...'.format(file_name))
+        #models = {"SMA": SMA, "WMA": WMA, "EMA": EMA,"PMA":PMA}
+        models = [SMA]
+        # size of window
+        size = 10
+        #interval in secs
+        interval = 60
+
+        lines = Arquive(file_name).readAllLines()
+        lines.pop(0)
+        lines.pop(len(lines)-1)
+        lines.pop(len(lines)-1)
+
+        for model in models:
+            fileName = "Log/{}/{}_{}.csv".format(model.getName(),time.time(), model.getName())
+            self.log = Arquive(fileName)
+            #write log header
+            self.log.append("timestamp,window,packages,predicted\n")
+            predictor = Predictor(self.callbackFunction, model, size)
+            predictor.setInterval(interval)
+            predictor.setOffline()
+            # package counter
+            count = 0
+            for timestamp in lines:
+                count += 1
+                # verify if is first iteration
+                if count == 1:
+                    # set model start time
+                    predictor.setStart(int(timestamp))
+                # send package time to model
+                predictor.packetInOffline(int(timestamp))
+                time.sleep(0.05)
+            print(model.getName(),"number of packets:",count)
+
+            # end model
+            predictor.stop()
+            time.sleep(5)
+            print("frames:",self.frames)
+
+            # end prediction
+            predictor.stop()
+            print("frames:",self.frames)
+
 if(__name__ == "__main__"):
-    Test().pcap("Data/1999/week3/monday.tcpdump")
+    Test().csvFile("Data/data.csv")

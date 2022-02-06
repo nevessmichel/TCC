@@ -34,6 +34,27 @@ https://archive.ll.mit.edu/ideval/data/1999/training/week3/monday/outside.tcpdum
 
 ---
 
+## Install
+
+### VSCode
+
+>sudo snap install --classic code
+
+### Mininet
+
+>git clone git://github.com/mininet/mininet
+
+>mininet/util/install.sh -a
+
+### Ryu-manager
+
+>pip install ryu
+
+### Scapy
+
+>pip install scapy
+---
+
 ### **Bug Fix eventlet**
 
 Eventlet with some problems at newest version until today (01/08/2022), use 0.30.2 instead.
