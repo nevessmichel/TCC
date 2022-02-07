@@ -28,6 +28,15 @@ def showResults():
 
     xAxis = range(1,totalPackets+1)
     colors = ["blue","lightgreen","orange","red"]
+    print(frames[totalPackets-1]-frames[0])
+
+    for i in range(len(models)):
+        MAPE = getMAPE(frames,predictions[i])
+        NMSE = getNMSE(frames,predictions[i])
+        print("--------Model:",models[i])
+        print("MAPE:",MAPE)
+        print("NMSE:",NMSE)
+        print("----------------------")
 
     plotOneByOne(models, xAxis,predictions,frames, colors)
     plotAllInOne(models, xAxis,predictions,frames, colors)
@@ -45,6 +54,33 @@ def plotOneByOne(models, xAxis, predictions,frames, colors):
         axis[i].legend(loc="upper right")
     fig.tight_layout()
     plt.show()
+
+#média percentual absoluta do erro
+def getMAPE(real, predicted):
+    size = len(real)
+    [media, variancia] = getVarianceAndMean(real, size)
+    acumulated = 0
+
+    for i in range(size):
+        if(real[i] > 0):
+            acumulated+=  abs((real[i]-predicted[i])/real[i])
+        else:
+            acumulated+=  abs((real[i]-predicted[i])/media)
+    return acumulated*100/size
+
+def getVarianceAndMean(vector, size):
+    media = sum(vector)/size
+    var = sum([(value-media)**2 for value in vector])
+    var = var/size
+    return [media, var]
+
+def getNMSE(real, predicted):
+    size = len(real)
+    [media, variancia] = getVarianceAndMean(real, size)
+    acumulated = 0
+    for i in range(size):
+        acumulated+=  (real[i]-predicted[i])**2
+    return acumulated/(size*variancia)
 
 def plotAllInOne(models, xAxis, predictions, frames, colors):
     fig, (ax0) = plt.subplots(1,1)

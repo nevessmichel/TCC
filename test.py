@@ -148,8 +148,7 @@ class Test:
         lines.pop(len(lines)-1)
         lines.pop(len(lines)-1)
         lines_size = len(lines)
-        for timestamp in lines:
-            print(timestamp)
+        print(int(lines[len(lines)-1]) - int(lines[0]))
 
 if(__name__ == "__main__"):
-    Test().csvFile("Data/data.csv")
+    Test().seeData("Data/data.csv")

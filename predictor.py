@@ -88,7 +88,7 @@ class Predictor(Thread):
         # append frame to history
         self.__history.append(self.__frame)
         # remove oldest frame from history
-        self.__history.pop(0)
+        self.__history = self.__history[1:]
         # calculate new avg
         self.__avg = sum(
             self.__history[self.__history_size - self.__window_size:])/self.__window_size
