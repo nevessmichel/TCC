@@ -3,8 +3,6 @@
 import os, sys, time
 from datetime import datetime
 from statistics import mode
-#seconds to datetime lib
-from datetime import datetime
 # import lib to process tcpdump
 from scapy.utils import RawPcapReader
 # import scapy parser for ethernet protocol
@@ -133,8 +131,7 @@ class Test:
                     predictor.setStart(int(timestamp))
                 # send package time to model
                 predictor.packetInNonThreaded(1,int(timestamp))
-                #print(count,'/',lines_size)
-                #time.sleep(0.00001)
+                print(count)
             print(model.getName(),"number of packets:",count)
 
             # end model
@@ -151,4 +148,4 @@ class Test:
         print(int(lines[len(lines)-1]) - int(lines[0]))
 
 if(__name__ == "__main__"):
-    Test().seeData("Data/data.csv")
+    Test().csvFile("Data/data.csv")
