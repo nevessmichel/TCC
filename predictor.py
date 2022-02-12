@@ -129,23 +129,25 @@ class Predictor(Thread):
 
                 # call adjust window function passing ceil of new size
                 self.__window_size = math.ceil(new_size)
+                print("window size:",self.__window_size)
                 self.__resizeHistory()
         
     def __resizeHistory(self):
-        if(self.__window_size > self.__history_size*.5):
-            new_size = math.ceil(self.__history_size*1.25)
+        new_size = self.__window_size * 2
+        if(new_size > self.__history_size):
             self.__history = [0]*(new_size-self.__history_size) + self.__history
             self.__history_size = new_size
-        if(self.__window_size < self.__history_size*.25):
-            new_size = max([math.ceil(self.__history_size/1.25), self.__history_min_size])
+        if(new_size < self.__history_size):
+            new_size = max([new_size, self.__history_min_size])
             self.__history = self.__history[self.__history_size-new_size:]
             self.__history_size=new_size
+        print("history size:",self.__history_size)
 
             
     # function to return prediction
     def __callback(self):
-        self.__alertCallback("[{}]".format(";".join(map(str, self.__history[self.__history_size - self.__window_size:]))),self.__frame, self.__predict())
-        #self.__alertCallback("None",self.__frame, self.__predict())
+        #self.__alertCallback("[{}]".format(";".join(map(str, self.__history[self.__history_size - self.__window_size:]))),self.__frame, self.__predict())
+        self.__alertCallback("None",self.__frame, self.__predict())
 
     # function to end model analysis
     def stop(self):
@@ -159,8 +161,6 @@ class Predictor(Thread):
             # recalculate window and slide window
             self.__slideWindow()
             self.__frame = 0
-        
-
 
     # set initial value for time and interval
     def setStart(self, start_time = time.time()):

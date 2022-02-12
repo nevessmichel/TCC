@@ -101,7 +101,7 @@ class Test:
 
         print('Opening {}...'.format(file_name))
         #models = {"SMA": SMA, "WMA": WMA, "EMA": EMA,"PMA":PMA}
-        models = [SMA, EMA, WMA, PMA]
+        models = [EMA]#, EMA, WMA, PMA]
         # size of window
         size = 10
         #interval in secs
@@ -131,7 +131,7 @@ class Test:
                     predictor.setStart(int(timestamp))
                 # send package time to model
                 predictor.packetInNonThreaded(1,int(timestamp))
-                print(count)
+                #print(count)
             print(model.getName(),"number of packets:",count)
 
             # end model

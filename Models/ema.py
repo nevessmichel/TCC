@@ -15,7 +15,7 @@ class EMA(Base):
         self.__smoothing = smoothing
 
     def predict(self, vector, size):
-        
+        print(size,len(vector))
         multiplier = self.__smoothing/(1+size)
         if(not self.__firstDone or self.__oldSize != size):
             yesterday = 0
