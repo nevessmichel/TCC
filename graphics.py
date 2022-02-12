@@ -26,7 +26,6 @@ def showResults():
             predictions[i].append(float(predict))
         totalPackets = len(lines)
 
-    xAxis = range(1,totalPackets+1)
     colors = ["blue","lightgreen","orange","red"]
     print(frames[totalPackets-1]-frames[0])
 

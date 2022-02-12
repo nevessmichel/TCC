@@ -1,4 +1,4 @@
-from Models.Base import Base
+from predictor import Base
 
 # Simple Moving Average (SMA)
 class SMA(Base):

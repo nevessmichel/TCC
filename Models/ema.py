@@ -1,4 +1,4 @@
-from Models.Base import Base
+from predictor import Base
 
 class EMA(Base):
     def __init__(self, smoothing = 2):

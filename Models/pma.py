@@ -1,5 +1,5 @@
 import math
-from Models.Base import Base
+from predictor import Base
 
 class PMA(Base):
     def __init__(self):
