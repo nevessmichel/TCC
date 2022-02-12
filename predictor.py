@@ -30,7 +30,8 @@ class Predictor(Thread):
         # frames counter
         self.__frames_count = 0
         # vector to save history of last frames
-        self.__history_size = 100
+        self.__history_min_size = 20
+        self.__history_size = max([self.__history_min_size,size*1.5])
         self.__history = [0]*self.__history_size
 
         # ------window resize variables
@@ -136,7 +137,7 @@ class Predictor(Thread):
             self.__history = [0]*(new_size-self.__history_size) + self.__history
             self.__history_size = new_size
         if(self.__window_size < self.__history_size*.25):
-            new_size = max([math.ceil(self.__history_size/1.25), 20])
+            new_size = max([math.ceil(self.__history_size/1.25), self.__history_min_size])
             self.__history = self.__history[self.__history_size-new_size:]
             self.__history_size=new_size
 

@@ -121,7 +121,7 @@ class Test:
             self.log.append("timestamp,window,packages,predicted\n")
             predictor = Predictor(self.callbackFunction, model, size)
             predictor.setInterval(interval)
-            predictor.setOffline()
+            predictor.setThreaded(False)
             # package counter
             count = 0
 
@@ -132,7 +132,7 @@ class Test:
                     # set model start time
                     predictor.setStart(int(timestamp))
                 # send package time to model
-                predictor.packetInOffline(int(timestamp))
+                predictor.packetInNonThreaded(1,int(timestamp))
                 #print(count,'/',lines_size)
                 #time.sleep(0.00001)
             print(model.getName(),"number of packets:",count)
